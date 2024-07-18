@@ -1,13 +1,17 @@
 package lol.koblizek.notecz.api.user;
 
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.method.MethodValidationException;
 
 import java.util.Optional;
 
 @Service
+@Validated
 public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
@@ -22,12 +26,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public Optional<User> save(User user) {
-        try {
-            return Optional.of(userRepository.saveAndFlush(user));
-        } catch (ConstraintViolationException e) {
-            LOGGER.warn("User validation failed: {}", e.getMessage());
-            return Optional.empty();
-        }
+    public Optional<User> save(@Valid User user) {
+        return Optional.ofNullable(userRepository.saveAndFlush(user));
     }
 }

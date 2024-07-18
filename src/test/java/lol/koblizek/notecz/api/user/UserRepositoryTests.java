@@ -30,9 +30,9 @@ class UserRepositoryTests {
     }
 
     @Test
-    void testUserValidation() {
+    void testInvalidUser() {
         User user = User.builder()
-                .name("Ro")
+                .name("Ro") // Username is mandatory but name isn't!
                 .email("ro@")
                 .password("Ro")
                 .build();

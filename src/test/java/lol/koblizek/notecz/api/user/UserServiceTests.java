@@ -1,22 +1,18 @@
 package lol.koblizek.notecz.api.user;
 
 import jakarta.validation.ConstraintViolationException;
-import lol.koblizek.notecz.api.user.User;
-import lol.koblizek.notecz.api.user.UserRepository;
-import lol.koblizek.notecz.api.user.UserService;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
-import static org.mockito.Mockito.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import static org.assertj.core.api.Assertions.*;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.properties")
@@ -47,10 +43,15 @@ class UserServiceTests {
 
     @Test
     void testSave() {
-        User user = User.builder()
+        User userWrong = User.builder()
                 .username("Johnxxx")
                 .name("John Doe")
                 .email("dwad").password("Password1").build();
-        assertThat(userService.save(user)).isPresent();
+        User userCorrect = User.builder()
+                .username("Johnxxx")
+                .email("john.doe2@example.com").password("Password1").build();
+        assertThatThrownBy(() -> userService.save(userWrong))
+                .isInstanceOf(ConstraintViolationException.class);
+        assertThat(userService.save(userCorrect)).isNotEmpty();
     }
 }
