@@ -46,12 +46,12 @@ class UserServiceTests {
         User userWrong = User.builder()
                 .username("Johnxxx")
                 .name("John Doe")
-                .email("dwad").password("Password1").build();
+                .email("john.doe").password("Password1").build();
         User userCorrect = User.builder()
                 .username("Johnxxx")
                 .email("john.doe2@example.com").password("Password1").build();
         assertThatThrownBy(() -> userService.save(userWrong))
                 .isInstanceOf(ConstraintViolationException.class);
-        assertThat(userService.save(userCorrect)).isNotEmpty();
+        assertThat(userService.save(userCorrect)).isNotNull();
     }
 }
