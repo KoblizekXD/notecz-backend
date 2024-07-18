@@ -1,9 +1,8 @@
 package lol.koblizek.notecz.api.user;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -13,8 +12,6 @@ import java.util.Optional;
 @Service
 @Validated
 public class UserService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -28,7 +25,15 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User save(@Valid User user) throws ConstraintViolationException {
+    /**
+     * Saves a user to the database, the provided password should not
+     * be handed as hashed, as it will be hashed automatically.
+     * @param user User
+     * @return User
+     * @throws ConstraintViolationException When some of the fields are not valid
+     */
+    @Transactional
+    public User save(@Valid User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

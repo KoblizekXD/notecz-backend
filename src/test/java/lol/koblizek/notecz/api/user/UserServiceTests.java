@@ -1,11 +1,11 @@
 package lol.koblizek.notecz.api.user;
 
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
@@ -16,16 +16,17 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class UserServiceTests {
 
-    @MockBean
+    @Mock
     UserRepository userRepository;
 
     @Autowired
     UserService userService;
 
-    @BeforeEach
-    void setUp() {
+    @Test
+    void testGetUserById() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User(
                 1L,
                 "xxxJohnxxx",
@@ -33,10 +34,6 @@ class UserServiceTests {
                 "john.doe@example.com",
                 "Password123"
         )));
-    }
-
-    @Test
-    void testGetUserById() {
         assertThat(userService.getUserById(1L)).isNotEmpty();
         assertThat(userService.getUserById(2L)).isEmpty();
     }
