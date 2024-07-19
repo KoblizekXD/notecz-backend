@@ -1,54 +1,62 @@
 package lol.koblizek.notecz.api.user;
 
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.properties")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@ExtendWith(MockitoExtension.class)
 class UserServiceTests {
+
+    User testUser = new User(
+            1L,
+            "xxxJohnxxx",
+            "John Doe",
+            "john.doe@example.com",
+            "Password123"
+    );
 
     @Mock
     UserRepository userRepository;
 
-    @Autowired
+    @Mock
+    PasswordEncoder passwordEncoder;
+
+    @InjectMocks
     UserService userService;
 
     @Test
-    void testGetUserById() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(new User(
-                1L,
-                "xxxJohnxxx",
-                "John Doe",
-                "john.doe@example.com",
-                "Password123"
-        )));
-        assertThat(userService.getUserById(1L)).isNotEmpty();
-        assertThat(userService.getUserById(2L)).isEmpty();
+    void testFindUserById() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        assertThat(userService.findUserById(1L)).hasValueSatisfying(usr -> {
+            assertThat(usr.getUsername()).isEqualTo("xxxJohnxxx");
+        });
+        assertThat(userService.findUserById(2L)).isEmpty();
+    }
+
+    @Test
+    void testFindUserByUsername() {
+        when(userRepository.findByUsername("xxxJohnxxx")).thenReturn(Optional.of(testUser));
+        assertThat(userService.findUserByUsername("xxxJohnxxx")).isNotEmpty();
+        assertThat(userService.findUserByUsername("Johnxxx")).isEmpty();
     }
 
     @Test
     void testSave() {
-        User userWrong = User.builder()
-                .username("Johnxxx")
-                .name("John Doe")
-                .email("john.doe").password("Password1").build();
-        User userCorrect = User.builder()
+        User user = User.builder()
                 .username("Johnxxx")
                 .email("john.doe2@example.com").password("Password1").build();
-        assertThatThrownBy(() -> userService.save(userWrong))
-                .isInstanceOf(ConstraintViolationException.class);
-        assertThat(userService.save(userCorrect)).isNotNull();
+        when(userRepository.save(user)).thenAnswer(inv -> inv.getArguments()[0]);
+        when(passwordEncoder.encode("Password1")).thenReturn("hashedPassword");
+
+        assertThat(userService.save(user)).isNotNull();
     }
 }
