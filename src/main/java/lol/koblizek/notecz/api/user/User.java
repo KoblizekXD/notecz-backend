@@ -38,6 +38,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Permission> permissions;
 
+    /**
+     * Do not use
+     */
     public User() {
         this.permissions = new HashSet<>();
     }
