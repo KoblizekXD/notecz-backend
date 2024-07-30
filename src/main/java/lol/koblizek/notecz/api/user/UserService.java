@@ -32,7 +32,7 @@ public class UserService implements UserDetailsService {
      * @param user User
      * @return User
      */
-    public User save(User user) {
+    public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -40,5 +40,10 @@ public class UserService implements UserDetailsService {
     @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    }
+
+    public boolean check(String username, String password) {
+        return findUserByUsername(username).map(user -> passwordEncoder.matches(password, user.getPassword()))
+                .orElse(false);
     }
 }

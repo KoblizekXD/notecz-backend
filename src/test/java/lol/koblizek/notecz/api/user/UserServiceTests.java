@@ -20,7 +20,7 @@ class UserServiceTests {
             "xxxJohnxxx",
             "John Doe",
             "john.doe@example.com",
-            "Password123"
+            "hashedPassword"
     );
 
     @Mock
@@ -50,13 +50,22 @@ class UserServiceTests {
     }
 
     @Test
-    void testSave() {
+    void testCreateUser() {
         User user = User.builder()
                 .username("Johnxxx")
                 .email("john.doe2@example.com").password("Password1").build();
         when(userRepository.save(user)).thenAnswer(inv -> inv.getArguments()[0]);
         when(passwordEncoder.encode("Password1")).thenReturn("hashedPassword");
 
-        assertThat(userService.save(user)).isNotNull();
+        assertThat(userService.createUser(user)).isNotNull();
+    }
+
+    @Test
+    void testUserCheck() {
+        when(userRepository.findByUsername("xxxJohnxxx")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("Password123", "hashedPassword")).thenReturn(true);
+
+        assertThat(userService.check("xxxJohnxxx", "Password123")).isTrue();
+        assertThat(userService.check("xxxJohnxxx", "Password1")).isFalse();
     }
 }
