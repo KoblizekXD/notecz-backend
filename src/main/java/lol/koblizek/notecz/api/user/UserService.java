@@ -26,6 +26,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     /**
      * Saves a user to the database, the provided password should not
      * be handed as hashed, as it will be hashed automatically.
