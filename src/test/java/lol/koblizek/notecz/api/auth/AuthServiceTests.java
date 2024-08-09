@@ -54,4 +54,24 @@ class AuthServiceTests {
         assertThatThrownBy(() -> authService.register("username", "existing@example.com", "Password1"))
                 .isInstanceOf(UserAlreadyExistsException.class);
     }
+
+    @Test
+    void testConstructToken() {
+        User user = new User("username", "non.existing@example.com", "Password1");
+        JwtToken token = authService.constructToken(user);
+
+        assertThat(token).isNotNull();
+        assertThat(token.getExpiration()).isNotNull();
+        assertThat(token.getAllClaims()).isNotNull();
+        assertThat(token.isTokenExpired()).isFalse();
+    }
+
+    @Test
+    void testCreateExisting() {
+        User user = new User("username", "non.existing@example.com", "Password1");
+        JwtToken token1 = authService.constructToken(user);
+        JwtToken token2 = authService.createExisting(token1.toString());
+
+        assertThat(token1.token()).isEqualTo(token2.token());
+    }
 }
