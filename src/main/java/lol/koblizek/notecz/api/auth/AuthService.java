@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lol.koblizek.notecz.api.auth.data.LoginResponse;
 import lol.koblizek.notecz.api.user.User;
+import lol.koblizek.notecz.api.user.UserDto;
 import lol.koblizek.notecz.api.user.UserService;
 import lol.koblizek.notecz.util.UserAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,10 @@ public class AuthService {
                 token.getExpiration(),
                 Permission.CREATE_POSTS
         );
+    }
+
+    public LoginResponse register(UserDto userDto) {
+        return register(userDto.username(), userDto.email(), userDto.password());
     }
 
     /**

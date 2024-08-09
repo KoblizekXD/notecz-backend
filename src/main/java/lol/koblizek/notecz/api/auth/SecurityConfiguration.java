@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @EnableWebSecurity
 @Configuration
@@ -25,6 +24,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(HttpMethod.POST, "/user/**").authenticated();
             authorize.requestMatchers(HttpMethod.PUT, "/user/**").authenticated();
+            authorize.anyRequest().permitAll();
         });
         return http.build();
     }
@@ -37,10 +37,5 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
-        return new HandlerMappingIntrospector();
     }
 }
