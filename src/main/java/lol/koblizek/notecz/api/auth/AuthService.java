@@ -4,10 +4,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lol.koblizek.notecz.api.auth.data.LoginResponse;
 import lol.koblizek.notecz.api.user.User;
-import lol.koblizek.notecz.api.user.UserDto;
+import lol.koblizek.notecz.api.user.UserLoginDto;
+import lol.koblizek.notecz.api.user.UserRegistrationDto;
 import lol.koblizek.notecz.api.user.UserService;
 import lol.koblizek.notecz.util.UserAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -22,13 +25,16 @@ public class AuthService {
 
     private final Long validFor;
     private final String secret;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthService(UserService userService,
+                       PasswordEncoder passwordEncoder,
                        @Value("${notecz.auth.jwt.expire}") Long validFor,
                        @Value("${notecz.auth.jwt.secret}") String secret) {
         this.userService = userService;
         this.validFor = validFor;
         this.secret = secret;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private SecretKey getSignKey() {
@@ -48,8 +54,22 @@ public class AuthService {
         );
     }
 
-    public LoginResponse register(UserDto userDto) {
-        return register(userDto.username(), userDto.email(), userDto.password());
+    public LoginResponse register(UserRegistrationDto userRegistrationDto) {
+        return register(userRegistrationDto.username(), userRegistrationDto.email(), userRegistrationDto.password());
+    }
+
+    public LoginResponse login(UserLoginDto userLoginDto) {
+        return userService.findUserByEmail(userLoginDto.email())
+                .map(user -> {
+                    if (passwordEncoder.matches(userLoginDto.password(), user.getPassword())) {
+                        JwtToken token = constructToken(user);
+                        return new LoginResponse(
+                                token.toString(),
+                                token.getExpiration(),
+                                user.getAuthorities().toArray(Permission[]::new)
+                        );
+                    } else throw new BadCredentialsException(userLoginDto.email());
+                }).orElseThrow(() -> new BadCredentialsException(userLoginDto.email()));
     }
 
     /**
