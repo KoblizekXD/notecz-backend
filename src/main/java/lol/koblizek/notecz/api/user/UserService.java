@@ -22,6 +22,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id);
     }
 
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public Optional<User> findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }

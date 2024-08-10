@@ -1,5 +1,6 @@
 package lol.koblizek.notecz.api.auth;
 
+import lol.koblizek.notecz.api.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,8 +31,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public OncePerRequestFilter requestFilter() {
-        return new RequestFilter();
+    public OncePerRequestFilter requestFilter(AuthService authService, UserService userService) {
+        return new RequestFilter(authService, userService);
     }
 
     @Bean
