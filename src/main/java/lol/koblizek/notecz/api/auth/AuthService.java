@@ -50,7 +50,7 @@ public class AuthService {
         return new LoginResponse(
                 token.toString(),
                 token.getExpiration(),
-                Permission.CREATE_POSTS
+                user.getAuthorities()
         );
     }
 
@@ -66,7 +66,7 @@ public class AuthService {
                         return new LoginResponse(
                                 token.toString(),
                                 token.getExpiration(),
-                                user.getAuthorities().toArray(Permission[]::new)
+                                user.getAuthorities()
                         );
                     } else throw new BadCredentialsException(userLoginDto.email());
                 }).orElseThrow(() -> new BadCredentialsException(userLoginDto.email()));

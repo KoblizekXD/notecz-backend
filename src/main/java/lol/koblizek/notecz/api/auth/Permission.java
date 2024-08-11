@@ -18,7 +18,7 @@ public enum Permission implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return toString();
+        return name();
     }
 
     public static Permission[] getStandardUserPermissions() {

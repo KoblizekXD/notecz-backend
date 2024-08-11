@@ -38,6 +38,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Permission> permissions;
 
+    public static final Set<Permission> DEFAULT_PERMISSIONS = Set.of(
+            Permission.CREATE_POSTS,
+            Permission.MODIFY_POSTS,
+            Permission.MODIFY_PROFILE
+    );
+
     /**
      * Do not use
      */
@@ -50,7 +56,10 @@ public class User implements UserDetails {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.permissions = Set.of(permissions);
+        if (permissions.length == 0)
+            this.permissions = DEFAULT_PERMISSIONS;
+        else
+            this.permissions = Set.of(permissions);
     }
 
     /**
@@ -63,7 +72,10 @@ public class User implements UserDetails {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.permissions = Set.of(permissions);
+        if (permissions.length == 0)
+            this.permissions = DEFAULT_PERMISSIONS;
+        else
+            this.permissions = Set.of(permissions);
     }
 
     public User(Long id, String username, String name, String email, String password, Permission... permissions) {
@@ -72,7 +84,10 @@ public class User implements UserDetails {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.permissions = Set.of(permissions);
+        if (permissions.length == 0)
+            this.permissions = DEFAULT_PERMISSIONS;
+        else
+            this.permissions = Set.of(permissions);
     }
 
     @Override

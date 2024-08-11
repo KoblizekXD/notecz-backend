@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorObject> userNotFoundException(UserNotFoundException e) {
-        return ResponseEntity.status(404).body(new ErrorObject(400, "User not found", Pair.of("email", e.getMessage())));
+        return ResponseEntity.status(404).body(new ErrorObject(400, "User not found", Pair.of("email", e.getEmail())));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

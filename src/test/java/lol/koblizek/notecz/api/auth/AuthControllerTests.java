@@ -12,8 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -27,37 +27,37 @@ class AuthControllerTests {
     UserService userService;
 
     @Test
-    void testRegister() {
+    void testRegister() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"username\":\"Test\",\"email\":\"\"}"))
-                    .andExpect(status().isBadRequest());
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(new UserRegistrationDto("Test", "test@email.com", "Password1"))))
-                    .andExpect(status().is(201));
-            mockMvc.perform(post("/api/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(new UserRegistrationDto("Test", "test@email.com", "Password1"))))
-                    .andExpect(status().isBadRequest());
-        });
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"Test\",\"email\":\"\"}"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserRegistrationDto("Test", "test@email.com", "Password1"))))
+                .andExpect(status().is(201))
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.permissions").isNotEmpty());
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserRegistrationDto("Test", "test@email.com", "Password1"))))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testLoginSuccessful() {
+    void testLogin() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        assertDoesNotThrow(() -> {
-            userService.createUser(new User("Test", "existing@email.com", "Password1"));
-            mockMvc.perform(post("/api/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(new UserLoginDto("existing@email.com", "Password1"))))
-                    .andExpect(status().isOk());
-            mockMvc.perform(post("/api/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(new UserLoginDto("non.existing@email.com", "Password1"))))
-                    .andExpect(status().isUnauthorized());
-        });
+        userService.createUser(new User("Test", "existing@email.com", "Password1"));
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserLoginDto("existing@email.com", "Password1"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.permissions").isNotEmpty());
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserLoginDto("non.existing@email.com", "Password1"))))
+                .andExpect(status().isUnauthorized());
     }
 }

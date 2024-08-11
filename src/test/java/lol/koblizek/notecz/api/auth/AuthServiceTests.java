@@ -88,7 +88,8 @@ class AuthServiceTests {
         when(userService.findUserByEmail("existing@email.com")).thenReturn(Optional.of(new User("username", "existing@email.com", "Password1")));
         when(passwordEncoder.matches("Password1", "Password1")).thenReturn(true);
 
-        assertThat(authService.login(new UserLoginDto("existing@email.com", "Password1"))).isNotNull();
+        assertThat(authService.login(new UserLoginDto("existing@email.com", "Password1"))).isNotNull()
+                .hasNoNullFieldsOrProperties();
     }
 
     @Test
