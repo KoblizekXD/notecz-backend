@@ -1,12 +1,15 @@
 package lol.koblizek.notecz.api.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lol.koblizek.notecz.api.auth.Permission;
+import lol.koblizek.notecz.api.user.post.Post;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
@@ -27,15 +30,21 @@ public class User implements UserDetails {
 
     @Column(name = "email", nullable = false, unique = true)
     @Email(message = "Invalid email")
+    @JsonIgnore
     private String email;
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     private String password;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<Post> posts = new LinkedHashSet<>();
 
     @ElementCollection(targetClass = Permission.class)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "userId"))
     @Column(name = "permissions", nullable = false)
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private Set<Permission> permissions;
 
     public static final Set<Permission> DEFAULT_PERMISSIONS = Set.of(
@@ -141,57 +150,7 @@ public class User implements UserDetails {
         this.permissions = permissions;
     }
 
-    public static final class UserBuilder {
-        private String username;
-        private String name;
-        private String email;
-        private String password;
-        private Set<Permission> permissions;
-
-        private UserBuilder() {
-        }
-
-        public static UserBuilder anUser() {
-            return new UserBuilder();
-        }
-
-        public UserBuilder username(String username) {
-            this.username = username;
-            return this;
-        }
-
-        public UserBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public UserBuilder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public UserBuilder password(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public UserBuilder permissions(Permission... permissions) {
-            this.permissions = Set.of(permissions);
-            return this;
-        }
-
-        public User build() {
-            User user = new User();
-            user.setUsername(username);
-            user.setName(name);
-            user.setEmail(email);
-            user.setPassword(password);
-            user.setPermissions(permissions);
-            return user;
-        }
-    }
-
-    public static UserBuilder builder() {
-        return new UserBuilder();
+    public Set<Post> getPosts() {
+        return posts;
     }
 }

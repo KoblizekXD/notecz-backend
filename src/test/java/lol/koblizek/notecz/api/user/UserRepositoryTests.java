@@ -24,20 +24,13 @@ class UserRepositoryTests {
 
     @Test
     void testRepositoryAdding() {
-        userRepository.save(User.builder()
-                .username(username)
-                .email(email)
-                .password(password).build());
+        userRepository.save(new User(username, email, password));
         assertThat(userRepository.findAll()).hasSize(1);
     }
 
     @Test
     void testInvalidUser() {
-        User user = User.builder()
-                .name("Ro") // Username is mandatory but name isn't!
-                .email("ro@")
-                .password("Ro")
-                .build();
+        User user = new User(null, "Ro", "ro@", "Ro");
         assertThatThrownBy(() -> userRepository.saveAndFlush(user))
                 .isInstanceOf(ConstraintViolationException.class);
     }

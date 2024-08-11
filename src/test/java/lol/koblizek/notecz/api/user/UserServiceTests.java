@@ -51,9 +51,7 @@ class UserServiceTests {
 
     @Test
     void testCreateUser() {
-        User user = User.builder()
-                .username("Johnxxx")
-                .email("john.doe2@example.com").password("Password1").build();
+        User user = new User("Johnxxx", "john.doe2@example.com", "Passsword1");
         when(userRepository.save(user)).thenAnswer(inv -> inv.getArguments()[0]);
         when(passwordEncoder.encode("Password1")).thenReturn("hashedPassword");
 

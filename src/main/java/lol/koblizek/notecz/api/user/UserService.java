@@ -1,5 +1,6 @@
 package lol.koblizek.notecz.api.user;
 
+import lol.koblizek.notecz.api.user.post.Post;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,5 +54,21 @@ public class UserService implements UserDetailsService {
     public boolean check(String username, String password) {
         return findUserByUsername(username).map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
+    }
+
+    public User updateUser(User user) {
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("User ID must be set");
+        }
+        return userRepository.save(user);
+    }
+
+    public boolean addPost(Long id, Post post) {
+        return findUserById(id).map(user -> {
+            post.setUser(user);
+            user.getPosts().add(post);
+            userRepository.save(user);
+            return true;
+        }).orElse(false);
     }
 }
