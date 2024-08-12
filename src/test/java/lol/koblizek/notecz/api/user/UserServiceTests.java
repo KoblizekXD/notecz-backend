@@ -1,5 +1,6 @@
 package lol.koblizek.notecz.api.user;
 
+import lol.koblizek.notecz.api.user.post.Post;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,7 +52,7 @@ class UserServiceTests {
 
     @Test
     void testCreateUser() {
-        User user = new User("Johnxxx", "john.doe2@example.com", "Passsword1");
+        User user = new User("Johnxxx", "john.doe2@example.com", "Password1");
         when(userRepository.save(user)).thenAnswer(inv -> inv.getArguments()[0]);
         when(passwordEncoder.encode("Password1")).thenReturn("hashedPassword");
 
@@ -65,5 +66,12 @@ class UserServiceTests {
 
         assertThat(userService.check("xxxJohnxxx", "Password123")).isTrue();
         assertThat(userService.check("xxxJohnxxx", "Password1")).isFalse();
+    }
+
+    @Test
+    void testAddPostToUser() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        assertThat(userService.addPost(1L, new Post("Title", "Content"))).isTrue();
+        assertThat(testUser.getPosts()).hasSize(1);
     }
 }

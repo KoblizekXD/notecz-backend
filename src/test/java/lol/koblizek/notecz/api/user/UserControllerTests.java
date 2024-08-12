@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,9 +39,11 @@ class UserControllerTests {
     @Test
     void testGetUserPosts() throws Exception {
         User user = userService.createUser(new User("John", "john@example.com", "Password1"));
-        userService.addPost(user.getId(), new Post("Title", "Content"));
-        mockMvc.perform(get("/api/users/1/posts"))
+        assertThat(userService.addPost(user.getId(), new Post("Title", "Content")))
+                .isTrue();
+        mockMvc.perform(get("/api/users/" + user.getId() + "/posts"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty())
                 .andExpect(jsonPath("$[0].title").value("Title"))
                 .andExpect(jsonPath("$[0].content").value("Content"));
     }

@@ -38,7 +38,7 @@ public class User implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private Set<Post> posts = new LinkedHashSet<>();
+    private transient Set<Post> posts = new LinkedHashSet<>();
 
     @ElementCollection(targetClass = Permission.class)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "userId"))

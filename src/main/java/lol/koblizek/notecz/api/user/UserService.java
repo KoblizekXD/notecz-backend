@@ -1,5 +1,6 @@
 package lol.koblizek.notecz.api.user;
 
+import jakarta.transaction.Transactional;
 import lol.koblizek.notecz.api.user.post.Post;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,10 +64,11 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public boolean addPost(Long id, Post post) {
         return findUserById(id).map(user -> {
-            post.setUser(user);
             user.getPosts().add(post);
+            post.setUser(user);
             userRepository.save(user);
             return true;
         }).orElse(false);
