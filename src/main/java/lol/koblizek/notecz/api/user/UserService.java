@@ -2,6 +2,7 @@ package lol.koblizek.notecz.api.user;
 
 import jakarta.transaction.Transactional;
 import lol.koblizek.notecz.api.user.post.Post;
+import lol.koblizek.notecz.api.user.post.PostRepository;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,11 +14,13 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(PostRepository postRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.postRepository = postRepository;
     }
 
     public Optional<User> findUserById(Long id) {
@@ -67,8 +70,8 @@ public class UserService implements UserDetailsService {
     @Transactional
     public boolean addPost(Long id, Post post) {
         return findUserById(id).map(user -> {
-            user.getPosts().add(post);
             post.setUser(user);
+            user.getPosts().add(postRepository.save(post));
             userRepository.save(user);
             return true;
         }).orElse(false);

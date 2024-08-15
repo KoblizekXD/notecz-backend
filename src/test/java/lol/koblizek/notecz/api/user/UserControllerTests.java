@@ -39,7 +39,7 @@ class UserControllerTests {
     @Test
     void testGetUserPosts() throws Exception {
         User user = userService.createUser(new User("John", "john@example.com", "Password1"));
-        assertThat(userService.addPost(user.getId(), new Post("Title", "Content")))
+        assertThat(userService.addPost(user.getId(), new Post("Title", "Content Content Content")))
                 .isTrue();
         mockMvc.perform(get("/api/users/" + user.getId() + "/posts"))
                 .andExpect(status().isOk())
