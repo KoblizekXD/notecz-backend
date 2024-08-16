@@ -1,6 +1,7 @@
 package lol.koblizek.notecz.api.user;
 
 import lol.koblizek.notecz.api.user.post.Post;
+import lol.koblizek.notecz.api.user.post.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +28,9 @@ class UserServiceTests {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    PostRepository postRepository;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -71,6 +76,8 @@ class UserServiceTests {
     @Test
     void testAddPostToUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(postRepository.save(any())).then(a -> a.getArguments()[0]);
+
         assertThat(userService.addPost(1L, new Post("Title", "Content"))).isTrue();
         assertThat(testUser.getPosts()).hasSize(1);
     }

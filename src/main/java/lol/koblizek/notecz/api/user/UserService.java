@@ -70,8 +70,10 @@ public class UserService implements UserDetailsService {
     @Transactional
     public boolean addPost(Long id, Post post) {
         return findUserById(id).map(user -> {
-            user.addPost(post);
+            post.setUser(user);
+            user.getPosts().add(post);
             postRepository.save(post);
+            userRepository.save(user);
             return true;
         }).orElse(false);
     }

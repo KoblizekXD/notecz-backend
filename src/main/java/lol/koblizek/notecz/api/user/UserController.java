@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/posts")
-    public ResponseEntity<Set<Post>> getUserPosts(@PathVariable Long id) {
+    public ResponseEntity<List<Post>> getUserPosts(@PathVariable Long id) {
         return userService.findUserById(id).map(user -> ResponseEntity.ok(user.getPosts()))
                 .orElse(ResponseEntity.notFound().build());
     }

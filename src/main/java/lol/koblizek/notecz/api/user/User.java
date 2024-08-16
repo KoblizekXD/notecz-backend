@@ -8,8 +8,9 @@ import lol.koblizek.notecz.api.auth.Permission;
 import lol.koblizek.notecz.api.user.post.Post;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,7 +39,7 @@ public class User implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final transient Set<Post> posts = new LinkedHashSet<>();
+    private final transient List<Post> posts = new ArrayList<>();
 
     @ElementCollection(targetClass = Permission.class)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "userId"))
@@ -150,12 +151,12 @@ public class User implements UserDetails {
         this.permissions = permissions;
     }
 
-    public Set<Post> getPosts() {
+    public List<Post> getPosts() {
         return posts;
     }
 
     public void addPost(Post post) {
-        posts.add(post);
         post.setUser(this);
+        posts.add(post);
     }
 }
