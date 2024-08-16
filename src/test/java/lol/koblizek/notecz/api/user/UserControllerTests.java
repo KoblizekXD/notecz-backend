@@ -1,21 +1,25 @@
 package lol.koblizek.notecz.api.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lol.koblizek.notecz.api.auth.data.LoginResponse;
 import lol.koblizek.notecz.api.user.post.Post;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class UserControllerTests {
 
     @Autowired
@@ -46,5 +50,26 @@ class UserControllerTests {
                 .andExpect(jsonPath("$").isNotEmpty())
                 .andExpect(jsonPath("$[0].title").value("Title"))
                 .andExpect(jsonPath("$[0].content").value("Content"));
+    }
+
+    @Test
+    void testCreatePost() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        LoginResponse resp = objectMapper.reader().readValue(mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new UserRegistrationDto("Test", "test@email.com", "Password1"))))
+                .andExpect(status().is(201))
+                .andReturn().getResponse().getContentAsString().getBytes(), LoginResponse.class);
+        assertThat(resp).isNotNull();
+        mockMvc.perform(post("/api/users/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + resp.token())
+                        .content(objectMapper.writeValueAsString(new Post("Title", "Content Content Content")))
+                )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.title").value("Title"))
+                .andExpect(jsonPath("$.content").value("Content Content Content"));
     }
 }

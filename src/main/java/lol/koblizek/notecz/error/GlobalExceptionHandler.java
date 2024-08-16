@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorObject> exception(Exception e) {
+        LOGGER.error("Internal server error", e);
         return ResponseEntity.status(500).body(new ErrorObject(500, "Internal server error", Pair.of("message", e.getMessage())));
     }
 

@@ -39,9 +39,9 @@ public class User implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
-    private final transient List<Post> posts = new ArrayList<>();
+    private transient List<Post> posts = new ArrayList<>();
 
-    @ElementCollection(targetClass = Permission.class)
+    @ElementCollection(targetClass = Permission.class, fetch = FetchType.EAGER)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "userId"))
     @Column(name = "permissions", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -155,8 +155,7 @@ public class User implements UserDetails {
         return posts;
     }
 
-    public void addPost(Post post) {
-        post.setUser(this);
-        posts.add(post);
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 }

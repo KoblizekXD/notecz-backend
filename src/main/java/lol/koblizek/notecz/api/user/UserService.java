@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -71,9 +72,10 @@ public class UserService implements UserDetailsService {
     public boolean addPost(Long id, Post post) {
         return findUserById(id).map(user -> {
             post.setUser(user);
-            user.getPosts().add(post);
-            postRepository.save(post);
-            userRepository.save(user);
+            List<Post> copy = user.getPosts();
+            copy.add(post);
+            user.setPosts(copy);
+            postRepository.saveAndFlush(post);
             return true;
         }).orElse(false);
     }

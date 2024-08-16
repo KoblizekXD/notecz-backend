@@ -1,5 +1,6 @@
 package lol.koblizek.notecz.api.user.post;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,8 +26,9 @@ public class Post {
     @Size(min = 20, max = 5000)
     private String content;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     public User getUser() {
@@ -39,6 +41,10 @@ public class Post {
 
     public String getContent() {
         return content;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override
