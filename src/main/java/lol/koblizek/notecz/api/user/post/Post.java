@@ -25,7 +25,7 @@ public class Post {
     @Size(min = 20, max = 5000)
     private String content;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

@@ -37,8 +37,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
-    private transient Set<Post> posts = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+    private final transient Set<Post> posts = new LinkedHashSet<>();
 
     @ElementCollection(targetClass = Permission.class)
     @JoinTable(name = "permissions", joinColumns = @JoinColumn(name = "userId"))
@@ -152,5 +152,10 @@ public class User implements UserDetails {
 
     public Set<Post> getPosts() {
         return posts;
+    }
+
+    public void addPost(Post post) {
+        posts.add(post);
+        post.setUser(this);
     }
 }
